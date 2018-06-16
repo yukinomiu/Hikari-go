@@ -1,34 +1,30 @@
 package hikariclient
 
 import (
+	"flag"
 	"hikari-go/hikaricommon"
-	"os"
-	"path"
+	"log"
 )
 
 type config struct {
-	ListenAddress string `json:"listenAddress"`
-	ListenPort    uint16 `json:"listenPort"`
+	SocksAddress  string `json:"socksAddress"`
+	SocksPort     uint16 `json:"socksPort"`
+	HttpAddress   string `json:"httpAddress"`
+	HttpPort      uint16 `json:"httpPort"`
 	ServerAddress string `json:"serverAddress"`
 	ServerPort    uint16 `json:"serverPort"`
 	PrivateKey    string `json:"privateKey"`
 	Secret        string `json:"secret"`
 }
 
-var cfg *config
+var cfg = &config{}
 
 func loadConfig() {
 	var configFilePath string
+	flag.StringVar(&configFilePath, "c", "./client.json", "config file path")
+	flag.Parse()
 
-	// read config from args
-	args := os.Args
-	if len(args) >= 2 {
-		configFilePath = args[1]
-	} else {
-		cd := args[0]
-		configFilePath = path.Join(cd, "../client.json")
+	if err := hikaricommon.LoadConfig(configFilePath, cfg); err != nil {
+		log.Fatalf("read config file err: %v\n", err)
 	}
-
-	cfg = &config{}
-	hikaricommon.LoadConfig(configFilePath, cfg)
 }

@@ -1,9 +1,9 @@
 package hikariserver
 
 import (
+	"flag"
 	"hikari-go/hikaricommon"
-	"os"
-	"path"
+	"log"
 )
 
 type config struct {
@@ -13,20 +13,14 @@ type config struct {
 	Secret         string   `json:"secret"`
 }
 
-var cfg *config
+var cfg = &config{}
 
 func loadConfig() {
 	var configFilePath string
+	flag.StringVar(&configFilePath, "c", "./server.json", "config file path")
+	flag.Parse()
 
-	// read config from args
-	args := os.Args
-	if len(args) >= 2 {
-		configFilePath = args[1]
-	} else {
-		cd := args[0]
-		configFilePath = path.Join(cd, "../server.json")
+	if err := hikaricommon.LoadConfig(configFilePath, cfg); err != nil {
+		log.Fatalf("read config file err: %v\n", err)
 	}
-
-	cfg = &config{}
-	hikaricommon.LoadConfig(configFilePath, cfg)
 }

@@ -6,15 +6,23 @@ import (
 	"log"
 )
 
-func LoadConfig(filePath string, config interface{}) {
+func LoadConfig(filePath string, config interface{}) error {
 	log.Printf("loading config file '%v'\n", filePath)
 
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		log.Fatalf("read config file '%v' err, %v\n", filePath, err)
+		return err
 	}
 
-	json.Unmarshal(data, config)
-	log.Printf("using config file '%v'\n", filePath)
-	log.Println("config:\n", string(data))
+	if err := json.Unmarshal(data, config); err != nil {
+		return err
+	}
+
+	if data, err = json.Marshal(config); err != nil {
+		return err
+	} else {
+		log.Printf("config: %v\n", string(data))
+	}
+
+	return nil
 }

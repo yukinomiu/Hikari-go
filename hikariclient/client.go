@@ -2,5 +2,11 @@ package hikariclient
 
 func Start() {
 	loadConfig()
-	startSocksServer()
+	initStatus()
+	go startSocksServer()
+	go startHttpServer()
+
+	// block
+	ch := make(chan byte)
+	<-ch
 }

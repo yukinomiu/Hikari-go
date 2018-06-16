@@ -2,5 +2,10 @@ package hikariserver
 
 func Start() {
 	loadConfig()
-	startHikariServer()
+	initStatus()
+	go startHikariServer()
+
+	// block
+	ch := make(chan byte)
+	<-ch
 }

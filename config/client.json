@@ -1,6 +1,8 @@
 {
-  "listenAddress": "localhost",
-  "listenPort": 1180,
+  "socksAddress": "localhost",
+  "socksPort": 1180,
+  "httpAddress": "localhost",
+  "httpPort": 1190,
   "serverAddress": "localhost",
   "serverPort": 9670,
   "privateKey": "hikari",
