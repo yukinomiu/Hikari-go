@@ -18,10 +18,10 @@ Target
 
 ### Usage
 Client side:
-> ./hikari-client-xx-xxx client.json
+> ./hikari-client-xx-xxx -c client.json
 
 Server side:
-> ./hikari-server-xx-xxx server.json
+> ./hikari-server-xx-xxx -c server.json
 
 ### Sample configuration
 Client side:
