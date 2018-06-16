@@ -28,10 +28,12 @@ Client side:
 
 ```
 {
-  "listenAddress": "localhost", // local SOCKS5 and HTTP proxy server address
-  "listenPort": 1180, // associated port
-  "serverAddress": "localhost", // Hikari server address
-  "serverPort": 9670, // associated port
+  "socksAddress": "localhost", // local SOCKS5 proxy server address
+  "socksPort": 1180, // local SOCKS5 proxy server port, using '0' to turn off SOCKS5 proxy server
+  "httpAddress": "localhost", // local HTTP proxy server address
+  "httpPort": 1190, // local HTTP proxy server port, using '0' to turn off HTTP proxy server
+  "serverAddress": "localhost", // remote Hikari server address
+  "serverPort": 9670, // remote Hikari server port
   "privateKey": "hikari", // authentication key, must be same with server side
   "secret": "hikari-secret" // encryption key, must be same with server side
 }
