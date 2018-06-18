@@ -2,6 +2,7 @@ package hikariclient
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/binary"
 	"hikari-go/hikaricommon"
 	"log"
@@ -13,12 +14,13 @@ import (
 )
 
 var (
-	httpProxyOK   = []byte("HTTP/1.1 200 Connection Established\r\n\r\n")
-	httpProxyFail = []byte("HTTP/1.1 502 Bad Gateway\r\n\r\n")
+	httpConnectionEstablished = []byte("HTTP/1.1 200 Connection Established\r\n\r\n")
+	httpBadGateway            = []byte("HTTP/1.1 502 Bad Gateway\r\n\r\n")
 )
 
 // struct
-type httpConnectReq struct {
+type httpProxyReq struct {
+	httpReq    []byte
 	adsAndPort []byte
 }
 
@@ -86,11 +88,11 @@ func httpHandshake(ctx *context, conn *net.Conn) error {
 	}
 
 	// read http connect req
-	var httpReq *httpConnectReq
+	var proxyReq *httpProxyReq
 	if req, err := readHttpReq(ctx.localConn); err != nil {
 		return err
 	} else {
-		httpReq = req
+		proxyReq = req
 	}
 
 	// init crypto
@@ -102,7 +104,7 @@ func httpHandshake(ctx *context, conn *net.Conn) error {
 	}
 
 	// send hikari req
-	if serverConn, err := sendHikariReq(ctx.crypto, hikaricommon.HikariAddressTypeDomainName, httpReq.adsAndPort); err != nil {
+	if serverConn, err := sendHikariReq(ctx.crypto, hikaricommon.HikariAddressTypeDomainName, proxyReq.adsAndPort); err != nil {
 		ctx.serverConn = serverConn
 		return err
 	} else {
@@ -123,14 +125,14 @@ func httpHandshake(ctx *context, conn *net.Conn) error {
 	}
 
 	// reply http
-	if err := replyHttpReq(ctx.localConn, hikariRsp); err != nil {
+	if err := replyHttpReq(ctx.crypto, ctx.localConn, ctx.serverConn, proxyReq, hikariRsp); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func readHttpReq(conn *net.Conn) (*httpConnectReq, error) {
+func readHttpReq(conn *net.Conn) (*httpProxyReq, error) {
 	var httpReq *http.Request
 	if req, err := http.ReadRequest(bufio.NewReader(*conn)); err != nil {
 		return nil, err
@@ -138,11 +140,7 @@ func readHttpReq(conn *net.Conn) (*httpConnectReq, error) {
 		httpReq = req
 	}
 
-	// method
-	if connectMethod != httpReq.Method {
-		return nil, badHttpConnectReqErr
-	}
-
+	// host
 	host := httpReq.Host
 	var tgtAds []byte
 	var tgtPort int
@@ -157,7 +155,7 @@ func readHttpReq(conn *net.Conn) (*httpConnectReq, error) {
 
 	} else {
 		tgtAds = []byte(host)
-		tgtPort = 80 // default port 80
+		tgtPort = 80 // http default port 80
 	}
 
 	adsLen := len(tgtAds)
@@ -166,51 +164,72 @@ func readHttpReq(conn *net.Conn) (*httpConnectReq, error) {
 	copy(adsAndPort[1:], tgtAds)
 	binary.BigEndian.PutUint16(adsAndPort[adsLen+1:], uint16(tgtPort))
 
-	return &httpConnectReq{adsAndPort}, nil
+	proxyReq := httpProxyReq{}
+	proxyReq.adsAndPort = adsAndPort
+
+	if connectMethod != httpReq.Method {
+		// normal http proxy
+		buf := new(bytes.Buffer)
+		if err := httpReq.Write(buf); err != nil {
+			return nil, err
+		}
+
+		proxyReq.httpReq = buf.Bytes()
+	}
+
+	return &proxyReq, nil
 }
 
-func replyHttpReq(conn *net.Conn, rsp *hikariRsp) error {
-	c := *conn
-
+func replyHttpReq(crypto *hikaricommon.Crypto, localConn *net.Conn, serverConn *net.Conn, proxyReq *httpProxyReq, rsp *hikariRsp) error {
 	switch rsp.reply {
 	case hikaricommon.HikariReplyOk:
-		if _, err := c.Write(httpProxyOK); err != nil {
+		if req := proxyReq.httpReq; req != nil {
+			cr := *crypto
+			cr.Encrypt(req)
+			if _, err := (*serverConn).Write(req); err != nil {
+				return err
+			}
+
+			return nil
+		}
+
+		if _, err := (*localConn).Write(httpConnectionEstablished); err != nil {
 			return err
 		}
 		return nil
 
 	case hikaricommon.HikariReplyVersionNotSupported:
-		if _, err := c.Write(httpProxyFail); err != nil {
+		if _, err := (*localConn).Write(httpBadGateway); err != nil {
 			return err
 		}
 		return hikaricommon.HikariVerNotSupportedErr
 
 	case hikaricommon.HikariReplyAuthFail:
-		if _, err := c.Write(httpProxyFail); err != nil {
+		if _, err := (*localConn).Write(httpBadGateway); err != nil {
 			return err
 		}
 		return hikaricommon.HikariAuthFailErr
 
 	case hikaricommon.HikariAdsTypeNotSupported:
-		if _, err := c.Write(httpProxyFail); err != nil {
+		if _, err := (*localConn).Write(httpBadGateway); err != nil {
 			return err
 		}
 		return hikaricommon.HikariAdsTypeNotSupportedErr
 
 	case hikaricommon.HikariReplyDnsLookupFail:
-		if _, err := c.Write(httpProxyFail); err != nil {
+		if _, err := (*localConn).Write(httpBadGateway); err != nil {
 			return err
 		}
 		return hikaricommon.HikariDnsLookupFailErr
 
 	case hikaricommon.HikariReplyConnectTargetFail:
-		if _, err := c.Write(httpProxyFail); err != nil {
+		if _, err := (*localConn).Write(httpBadGateway); err != nil {
 			return err
 		}
 		return hikaricommon.HikariConnectToTargetFailErr
 
 	default:
-		if _, err := c.Write(httpProxyFail); err != nil {
+		if _, err := (*localConn).Write(httpBadGateway); err != nil {
 			return err
 		}
 		return hikaricommon.BadHikariRspErr
