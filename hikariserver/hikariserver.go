@@ -68,14 +68,14 @@ func handleConnection(conn *net.Conn) {
 	}
 
 	// switch
-	hikaricommon.Switch(ctx.targetConn, ctx.clientConn, ctx.crypto, switchBufSize, switchTimeoutSec)
+	hikaricommon.Switch(ctx.targetConn, ctx.clientConn, ctx.crypto, switchBufSize, switchTimeout)
 }
 
 func hikariHandshake(ctx *context, conn *net.Conn) error {
 	ctx.clientConn = conn
 
 	// deadline
-	deadline := time.Now().Add(time.Second * handshakeTimeoutSec)
+	deadline := time.Now().Add(time.Second * handshakeTimeout)
 
 	// set client connection timeout
 	if err := (*conn).SetDeadline(deadline); err != nil {
@@ -261,7 +261,7 @@ func connectTarget(clientConn *net.Conn, hikariReq *hikariReq, crypto *hikaricom
 	for _, ip := range ips {
 		tgtAdsStr := net.JoinHostPort(ip.String(), portStr)
 
-		if c, err := net.DialTimeout("tcp", tgtAdsStr, time.Second*dialTimeoutSec); err != nil {
+		if c, err := net.DialTimeout("tcp", tgtAdsStr, time.Second*dialTimeout); err != nil {
 			log.Printf("connect target '%v' err: %v\n", tgtAdsStr, err)
 		} else {
 			tgtConn = c

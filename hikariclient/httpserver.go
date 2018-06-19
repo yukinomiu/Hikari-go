@@ -73,14 +73,14 @@ func handleHttpConnection(conn *net.Conn) {
 	}
 
 	// switch
-	hikaricommon.Switch(ctx.localConn, ctx.serverConn, ctx.crypto, switchBufSize, switchTimeoutSec)
+	hikaricommon.Switch(ctx.localConn, ctx.serverConn, ctx.crypto, switchBufSize, switchTimeout)
 }
 
 func httpHandshake(ctx *context, conn *net.Conn) error {
 	ctx.localConn = conn
 
 	// deadline
-	deadline := time.Now().Add(time.Second * handshakeTimeoutSec)
+	deadline := time.Now().Add(time.Second * handshakeTimeout)
 
 	// set local connection timeout
 	if err := (*conn).SetDeadline(deadline); err != nil {

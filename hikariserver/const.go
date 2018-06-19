@@ -8,7 +8,7 @@ const (
 	switchBufSize    = 4096
 
 	// timeout
-	handshakeTimeoutSec time.Duration = 30
-	dialTimeoutSec      time.Duration = 30
-	switchTimeoutSec    time.Duration = 600
+	handshakeTimeout time.Duration = 30
+	dialTimeout      time.Duration = 30
+	switchTimeout    time.Duration = 600
 )

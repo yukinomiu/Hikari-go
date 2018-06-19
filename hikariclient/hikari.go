@@ -17,7 +17,7 @@ type hikariRsp struct {
 func sendHikariReq(crypto *hikaricommon.Crypto, hikariAdsType byte, adsAndPort []byte) (*net.Conn, error) {
 	cr := *crypto
 
-	serverConn, err := net.DialTimeout("tcp", serverAds, time.Second*dialTimeoutSec)
+	serverConn, err := net.DialTimeout("tcp", serverAds, time.Second*dialTimeout)
 	if err != nil {
 		return nil, err
 	}
