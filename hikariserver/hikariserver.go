@@ -158,7 +158,9 @@ func readHikariReq(conn *net.Conn, crypto *hikaricommon.Crypto) (*hikariReq, err
 	// ver
 	ver := buf[0]
 	if ver != hikaricommon.HikariVer1 {
-		if _, err := c.Write([]byte{hikaricommon.HikariVer1, hikaricommon.HikariReplyVersionNotSupported}); err != nil {
+		rsp := []byte{hikaricommon.HikariVer1, hikaricommon.HikariReplyVersionNotSupported}
+		cr.Encrypt(rsp)
+		if _, err := c.Write(rsp); err != nil {
 			return nil, err
 		}
 
@@ -168,7 +170,9 @@ func readHikariReq(conn *net.Conn, crypto *hikaricommon.Crypto) (*hikariReq, err
 	// auth
 	authHex := hex.EncodeToString(buf[1:17])
 	if !isValidAuth(authHex) {
-		if _, err := c.Write([]byte{hikaricommon.HikariVer1, hikaricommon.HikariReplyAuthFail}); err != nil {
+		rsp := []byte{hikaricommon.HikariVer1, hikaricommon.HikariReplyAuthFail}
+		cr.Encrypt(rsp)
+		if _, err := c.Write(rsp); err != nil {
 			return nil, err
 		}
 
@@ -204,7 +208,9 @@ func readHikariReq(conn *net.Conn, crypto *hikaricommon.Crypto) (*hikariReq, err
 		port = buf[i:expectLen]
 
 	default:
-		if _, err := c.Write([]byte{hikaricommon.HikariVer1, hikaricommon.HikariAdsTypeNotSupported}); err != nil {
+		rsp := []byte{hikaricommon.HikariVer1, hikaricommon.HikariAdsTypeNotSupported}
+		cr.Encrypt(rsp)
+		if _, err := c.Write(rsp); err != nil {
 			return nil, err
 		}
 
