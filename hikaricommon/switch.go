@@ -5,16 +5,16 @@ import (
 	"time"
 )
 
-func Switch(plainConn *net.Conn, encryptedConn *net.Conn, crypto *Crypto, bufSize int, timeoutSec time.Duration) {
-	go pipePlain(plainConn, encryptedConn, crypto, bufSize, timeoutSec)
-	pipeEncrypted(encryptedConn, plainConn, crypto, bufSize, timeoutSec)
+func Switch(ctx *Context, timeoutSec time.Duration) {
+	c := *ctx
+	go pipePlain(c.GetPlainConn(), c.GetEncryptedConn(), c.GetCrypto(), c.GetPlainBuf(), timeoutSec)
+	pipeEncrypted(c.GetEncryptedConn(), c.GetPlainConn(), c.GetCrypto(), c.GetEncryptedBuf(), timeoutSec)
 }
 
-func pipePlain(src *net.Conn, dst *net.Conn, crypto *Crypto, bufSize int, timeoutSec time.Duration) {
+func pipePlain(src *net.Conn, dst *net.Conn, crypto *Crypto, buf []byte, timeoutSec time.Duration) {
 	s := *src
 	d := *dst
 	c := *crypto
-	buf := make([]byte, bufSize)
 
 	defer func() {
 		s.Close()
@@ -60,11 +60,10 @@ func pipePlain(src *net.Conn, dst *net.Conn, crypto *Crypto, bufSize int, timeou
 	}
 }
 
-func pipeEncrypted(src *net.Conn, dst *net.Conn, crypto *Crypto, bufSize int, timeoutSec time.Duration) {
+func pipeEncrypted(src *net.Conn, dst *net.Conn, crypto *Crypto, buf []byte, timeoutSec time.Duration) {
 	s := *src
 	d := *dst
 	c := *crypto
-	buf := make([]byte, bufSize)
 
 	defer func() {
 		s.Close()

@@ -57,9 +57,10 @@ func startHttpServer() {
 
 func handleHttpConnection(conn *net.Conn) {
 	// init context
-	ctx := &context{}
+	ctx := getContext()
 	defer func() {
 		ctx.Close()
+		returnContext(ctx)
 
 		if err := recover(); err != nil {
 			log.Printf("unexpected err: %v\n", err)
@@ -73,7 +74,8 @@ func handleHttpConnection(conn *net.Conn) {
 	}
 
 	// switch
-	hikaricommon.Switch(ctx.localConn, ctx.serverConn, ctx.crypto, switchBufSize, switchTimeout)
+	hikariCtx := interface{}(ctx).(hikaricommon.Context)
+	hikaricommon.Switch(&hikariCtx, switchTimeout)
 }
 
 func httpHandshake(ctx *context, conn *net.Conn) error {

@@ -1,11 +1,16 @@
 package hikariserver
 
-import "time"
+import (
+	"time"
+)
 
 const (
+	// context
+	ctxQueueSize = 64
+
 	// buffer size
+	ctxBufSize       = 4096
 	hikariReqBufSize = 276
-	switchBufSize    = 4096
 
 	// timeout
 	handshakeTimeout time.Duration = 30

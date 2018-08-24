@@ -54,9 +54,10 @@ func startSocksServer() {
 
 func handleSocksConnection(conn *net.Conn) {
 	// init context
-	ctx := &context{}
+	ctx := getContext()
 	defer func() {
 		ctx.Close()
+		returnContext(ctx)
 
 		if err := recover(); err != nil {
 			log.Printf("unexpected err: %v\n", err)
@@ -70,7 +71,8 @@ func handleSocksConnection(conn *net.Conn) {
 	}
 
 	// switch
-	hikaricommon.Switch(ctx.localConn, ctx.serverConn, ctx.crypto, switchBufSize, switchTimeout)
+	hikariCtx := interface{}(ctx).(hikaricommon.Context)
+	hikaricommon.Switch(&hikariCtx, switchTimeout)
 }
 
 func socksHandshake(ctx *context, conn *net.Conn) error {
