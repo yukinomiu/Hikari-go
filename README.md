@@ -1,21 +1,3 @@
-# Hikari-go
-The Golang version of Hikari
-
-### About
-Hikari, A network proxy tool which helps you break through network restrictions.
-
-How it works:
-
-```
-Local
-<---[SOCKS5 or HTTP protocol over local machine]--->
-Hikari client
-<---[Hikari protocol(encrypted) over Internet]--->
-Hikari server
-<---[Local data]--->
-Target
-```
-
 ### Usage
 Client side:
 > ./hikari-client-xx-xxx -c client.json
