@@ -14,6 +14,10 @@ const (
 
 	// timeout
 	handshakeTimeout time.Duration = 30
-	dialTimeout      time.Duration = 10
+	dialTimeout      time.Duration = 3
 	switchTimeout    time.Duration = 600
+
+	// connect count
+	maxConnectCount        = 6
+	maxConnectCountWithIp4 = 4
 )

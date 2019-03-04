@@ -22,7 +22,7 @@ type socksReq struct {
 }
 
 func startSocksServer() {
-	if cfg.SocksPort == 0 {
+	if cfg.SocksPort <= 0 {
 		log.Println("socks server disabled")
 		return
 	}

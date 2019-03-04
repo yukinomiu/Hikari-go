@@ -25,7 +25,7 @@ type httpProxyReq struct {
 }
 
 func startHttpServer() {
-	if cfg.HttpPort == 0 {
+	if cfg.HttpPort <= 0 {
 		log.Println("http server disabled")
 		return
 	}

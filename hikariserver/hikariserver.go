@@ -245,7 +245,7 @@ func connectTarget(clientConn *net.Conn, hikariReq *hikariReq, crypto *hikaricom
 	if hikariReq.adsType == hikaricommon.HikariAddressTypeDomainName {
 		// DNS lookup
 		host := string(hikariReq.ads)
-		if ip, err := net.LookupIP(host); err != nil {
+		if ipSlice, err := net.LookupIP(host); err != nil {
 			log.Printf("dns lookup '%v' err: %v\n", host, err)
 
 			rsp := []byte{hikaricommon.HikariVer1, hikaricommon.HikariReplyDnsLookupFail}
@@ -256,7 +256,7 @@ func connectTarget(clientConn *net.Conn, hikariReq *hikariReq, crypto *hikaricom
 
 			return nil, hikaricommon.HikariDnsLookupFailErr
 		} else {
-			ips = ip
+			ips = ipSlice
 		}
 
 	} else {
@@ -266,11 +266,20 @@ func connectTarget(clientConn *net.Conn, hikariReq *hikariReq, crypto *hikaricom
 	var tgtConn net.Conn
 
 	portStr := strconv.Itoa(int(binary.BigEndian.Uint16(hikariReq.port)))
-	for _, ip := range ips {
-		tgtAdsStr := net.JoinHostPort(ip.String(), portStr)
+	hasIp4 := false
+	for i, ip := range ips {
+		if !hasIp4 && ip.To4() != nil {
+			hasIp4 = true
+		}
 
+		if i >= maxConnectCount || (hasIp4 && i >= maxConnectCountWithIp4) {
+			break
+		}
+
+		tgtAdsStr := net.JoinHostPort(ip.String(), portStr)
 		if c, err := net.DialTimeout("tcp", tgtAdsStr, time.Second*dialTimeout); err != nil {
-			log.Printf("connect target '%v' err: %v\n", tgtAdsStr, err)
+			log.Printf("connect target '%v' (try count %v) err: %v\n", tgtAdsStr, i, err)
+			continue
 		} else {
 			tgtConn = c
 			break

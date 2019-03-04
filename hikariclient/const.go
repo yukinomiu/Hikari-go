@@ -14,6 +14,6 @@ const (
 
 	// timeout
 	handshakeTimeout time.Duration = 30
-	dialTimeout      time.Duration = 30
+	dialTimeout      time.Duration = 3
 	switchTimeout    time.Duration = 600
 )

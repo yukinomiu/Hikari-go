@@ -16,8 +16,8 @@ func initStatus() {
 
 	for _, k := range cfg.PrivateKeyList {
 		authArray := md5.Sum([]byte(k))
-		s := hex.EncodeToString(authArray[:])
-		authMap[s] = 0
+		h := hex.EncodeToString(authArray[:])
+		authMap[h] = 0
 	}
 
 	// init secret key
