@@ -19,11 +19,11 @@ func (c *context) Close() {
 	lc, sc := c.localConn, c.serverConn
 
 	if lc != nil {
-		(*lc).Close()
+		_ = (*lc).Close()
 	}
 
 	if sc != nil {
-		(*sc).Close()
+		_ = (*sc).Close()
 	}
 }
 

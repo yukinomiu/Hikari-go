@@ -39,7 +39,9 @@ func startHttpServer() {
 	if err != nil {
 		log.Fatalf("http server listen on address '%v' err: %v\n", httpListenAds, err)
 	}
-	defer listener.Close()
+	defer func() {
+		_ = listener.Close()
+	}()
 
 	// accept
 	log.Printf("http server listen on address '%v'\n", httpListenAds)
@@ -52,7 +54,7 @@ func startHttpServer() {
 
 		go handleHttpConnection(&conn)
 	}
-	log.Println("http server stop")
+	// log.Println("http server stop")
 }
 
 func handleHttpConnection(conn *net.Conn) {

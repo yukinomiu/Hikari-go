@@ -36,7 +36,9 @@ func startSocksServer() {
 	if err != nil {
 		log.Fatalf("socks server listen on address '%v' err: %v\n", socksListenAds, err)
 	}
-	defer listener.Close()
+	defer func() {
+		_ = listener.Close()
+	}()
 
 	// accept
 	log.Printf("socks server listen on address '%v'\n", socksListenAds)
@@ -49,7 +51,7 @@ func startSocksServer() {
 
 		go handleSocksConnection(&conn)
 	}
-	log.Println("socks server stop")
+	// log.Println("socks server stop")
 }
 
 func handleSocksConnection(conn *net.Conn) {

@@ -34,7 +34,9 @@ func startHikariServer() {
 	if err != nil {
 		log.Fatalf("hikari server listen on address '%v' err: %v\n", listenAds, err)
 	}
-	defer listener.Close()
+	defer func() {
+		_ = listener.Close()
+	}()
 
 	// accept
 	log.Printf("hikari server listen on address '%v'\n", listenAds)
@@ -47,7 +49,7 @@ func startHikariServer() {
 
 		go handleConnection(&conn)
 	}
-	log.Println("hikari server stop")
+	// log.Println("hikari server stop")
 }
 
 func handleConnection(conn *net.Conn) {

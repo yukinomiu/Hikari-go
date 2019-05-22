@@ -17,8 +17,8 @@ func pipePlain(src *net.Conn, dst *net.Conn, crypto *Crypto, buf []byte, timeout
 	c := *crypto
 
 	defer func() {
-		s.Close()
-		d.Close()
+		_ = s.Close()
+		_ = d.Close()
 	}()
 
 	var data []byte
@@ -66,8 +66,8 @@ func pipeEncrypted(src *net.Conn, dst *net.Conn, crypto *Crypto, buf []byte, tim
 	c := *crypto
 
 	defer func() {
-		s.Close()
-		d.Close()
+		_ = s.Close()
+		_ = d.Close()
 	}()
 
 	var data []byte

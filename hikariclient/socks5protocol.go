@@ -11,9 +11,9 @@ const (
 	socks5NoAcceptableMethods byte = 0xFF
 
 	// command
-	socks5CommandConnect      byte = 1
-	socks5CommandBind         byte = 2
-	socks5CommandUdpAssociate byte = 3
+	socks5CommandConnect byte = 1
+	// socks5CommandBind         byte = 2
+	// socks5CommandUdpAssociate byte = 3
 
 	// rsv
 	socks5Rsv byte = 0
@@ -24,15 +24,15 @@ const (
 	socks5AddressTypeIpv6       byte = 4
 
 	// reply
-	socks5ReplyOk                      byte = 0
-	socks5ReplyGeneralServerFailure    byte = 1
-	socks5ReplyConnectionNotAllowed    byte = 2
-	socks5ReplyNetworkUnreachable      byte = 3
-	socks5ReplyHostUnreachable         byte = 4
-	socks5ReplyConnectionRefused       byte = 5
-	socks5ReplyTtlExpired              byte = 6
-	socks5ReplyCommandNotSupported     byte = 7
-	socks5ReplyAddressTypeNotSupported byte = 8
+	socks5ReplyOk                   byte = 0
+	socks5ReplyGeneralServerFailure byte = 1
+	socks5ReplyConnectionNotAllowed byte = 2
+	socks5ReplyNetworkUnreachable   byte = 3
+	socks5ReplyHostUnreachable      byte = 4
+	// socks5ReplyConnectionRefused       byte = 5
+	// socks5ReplyTtlExpired              byte = 6
+	socks5ReplyCommandNotSupported byte = 7
+	// socks5ReplyAddressTypeNotSupported byte = 8
 )
 
 var (

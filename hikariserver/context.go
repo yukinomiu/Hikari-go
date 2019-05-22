@@ -19,11 +19,11 @@ func (c *context) Close() {
 	cc, tc := c.clientConn, c.targetConn
 
 	if cc != nil {
-		(*cc).Close()
+		_ = (*cc).Close()
 	}
 
 	if tc != nil {
-		(*tc).Close()
+		_ = (*tc).Close()
 	}
 }
 

@@ -18,11 +18,5 @@ func LoadConfig(filePath string, config interface{}) error {
 		return err
 	}
 
-	if data, err = json.Marshal(config); err != nil {
-		return err
-	} else {
-		log.Printf("config: %v\n", string(data))
-	}
-
 	return nil
 }

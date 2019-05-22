@@ -1,10 +1,10 @@
 {
-  "socksAddress": "localhost",
+  "socksAddress": "0.0.0.0",
   "socksPort": 1180,
-  "httpAddress": "localhost",
+  "httpAddress": "0.0.0.0",
   "httpPort": 1190,
-  "serverAddress": "localhost",
+  "serverAddress": "0.0.0.0",
   "serverPort": 9670,
   "privateKey": "hikari",
-  "secret": "hikari-secret"
+  "secret": "secret"
 }
